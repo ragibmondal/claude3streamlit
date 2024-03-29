@@ -2,7 +2,7 @@ import streamlit as st
 import anthropic
 
 # Set your Anthropic API key
-API_KEY = "my_api_key"
+API_KEY = "ANTHROPIC_API_KEY"
 
 # Initialize the Anthropic client
 client = anthropic.Anthropic(api_key=API_KEY)
