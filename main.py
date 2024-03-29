@@ -4,7 +4,7 @@ from PIL import Image
 import io
 
 # Set your Anthropic API key
-API_KEY = "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"
+API_KEY = "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"
 
 # Initialize the Anthropic client
 client = anthropic.Anthropic(api_key=API_KEY)
