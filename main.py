@@ -1,8 +1,10 @@
 import streamlit as st
 import anthropic
+from PIL import Image
+import io
 
 # Set your Anthropic API key
-API_KEY = "ANTHROPIC_API_KEY"
+API_KEY = "my_api_key"
 
 # Initialize the Anthropic client
 client = anthropic.Anthropic(api_key=API_KEY)
@@ -15,28 +17,45 @@ def main():
 
     with desktop_column:
         st.title("Claude-3 Question Answering")
-        query = st.text_area("Enter your question:", height=300)
 
-        if st.button("Submit"):
-            if query:
+        # Chat interface
+        chat_container = st.container()
+        user_input = st.text_input("Enter your message:", key="user_input")
+        upload_image = st.file_uploader("Upload an image (optional)", type=["jpg", "jpeg", "png"])
+
+        if st.button("Send"):
+            if user_input or upload_image:
                 try:
+                    messages = [
+                        {"role": "user", "content": [{"type": "text", "text": user_input}]}
+                    ]
+
+                    if upload_image:
+                        image = Image.open(upload_image)
+                        image_bytes = io.BytesIO()
+                        image.save(image_bytes, format="PNG")
+                        image_bytes = image_bytes.getvalue()
+                        messages[0]["content"].append({"type": "image", "data": image_bytes})
+
                     # Create a message request
                     message = client.messages.create(
                         model="claude-3-opus-20240229",
                         max_tokens=1000,
                         temperature=0,
                         system="Today is March 4, 2024.",
-                        messages=[
-                            {"role": "user", "content": [{"type": "text", "text": query}]}
-                        ]
+                        messages=messages
                     )
 
-                    # Display the response
-                    st.write(message.content)
+                    # Display the response in the chat
+                    chat_container.write(f"**User:** {user_input}")
+                    chat_container.write(f"**Claude:** {message.content}")
+
+                    # Clear user input
+                    user_input = ""
                 except Exception as e:
                     st.error(f"An error occurred: {e}")
             else:
-                st.warning("Please enter a question.")
+                st.warning("Please enter a message or upload an image.")
 
     with mobile_column:
         st.write("")  # Placeholder for responsiveness
